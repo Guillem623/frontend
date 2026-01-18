@@ -22,6 +22,7 @@ function Login() {
               id="email"
               className="form-control"
               placeholder="exemple@correu.com"
+              required
             />
           </div>
 
@@ -33,6 +34,8 @@ function Login() {
               id="password"
               className="form-control"
               placeholder="••••••••"
+              required
+              minLength="6"
             />
           </div>
 

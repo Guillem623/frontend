@@ -22,6 +22,8 @@ function Register() {
               id="name"
               className="form-control"
               placeholder="Exemple: Maria Serra"
+              required
+              minLength="3"
             />
           </div>
 
@@ -60,7 +62,7 @@ function Register() {
 
           {/* Acceptació termes */}
           <div className="form-check mb-3">
-            <input type="checkbox" id="terms" className="form-check-input" />
+            <input type="checkbox" id="terms" className="form-check-input" required/>
             <label htmlFor="terms" className="form-check-label">
               Accepto els <a href="#">termes i condicions</a> i la{' '}
               <a href="#">política de privacitat</a>
