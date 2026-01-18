@@ -1,7 +1,25 @@
-function Home() {
-  return (
-    <div className="py-5 px-5">
+import { useOutletContext } from "react-router-dom";
 
+function Home() {
+  const { cartOpen } = useOutletContext();
+
+  return (
+    <div className="py-5 px-5 position-relative">
+
+      {/* 🛒 CISTELLA DESPLEGADA (AFEGIT) */}
+      {cartOpen && (
+        <div
+          className="position-fixed top-0 end-0 mt-5 me-3 p-3 bg-light border rounded shadow"
+          style={{ width: "300px", zIndex: 1000 }}
+        >
+          <h5>Cistella</h5>
+          <p className="text-muted mb-0">
+            La cistella està buida
+          </p>
+        </div>
+      )}
+
+      {/* Títol principal */}
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold">Benvingut a Delícies Gourmet</h1>
         <p className="lead text-muted">
@@ -9,6 +27,7 @@ function Home() {
         </p>
       </div>
 
+      {/* Secció destacats */}
       <section className="mb-5">
         <div className="p-4 border rounded shadow-sm bg-light">
           <h2 className="fw-semibold">Productes Destacats</h2>
@@ -18,6 +37,7 @@ function Home() {
         </div>
       </section>
 
+      {/* Secció informació */}
       <section className="mb-5">
         <div className="p-4 border rounded shadow-sm">
           <h2 className="fw-semibold">Per què comprar a Delícies Gourmet?</h2>
@@ -30,6 +50,7 @@ function Home() {
         </div>
       </section>
 
+      {/* Secció crida a l'acció */}
       <section className="text-center">
         <div className="p-4 border rounded shadow-sm bg-light">
           <h2 className="fw-semibold">Comença ara</h2>
@@ -40,7 +61,7 @@ function Home() {
       </section>
 
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

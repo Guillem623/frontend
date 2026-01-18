@@ -1,6 +1,9 @@
 import { Outlet, Link } from 'react-router-dom'
+import { useState } from 'react'
 
 function App() {
+  const [cartOpen, setCartOpen] = useState(false)
+
   return (
     <div className="d-flex flex-column min-vh-100">
 
@@ -43,9 +46,12 @@ function App() {
                 <Link to="/register" className="nav-link">Registrar-se</Link>
               </li>
 
-              {/* Carret */}
+              {/* 🛒 Carret (BOTÓ EXISTENT) */}
               <li className="nav-item ms-3">
-                <button className="btn btn-outline-light position-relative">
+                <button
+                  className="btn btn-outline-light position-relative"
+                  onClick={() => setCartOpen(!cartOpen)}
+                >
                   🛒
                   <span
                     className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -54,6 +60,7 @@ function App() {
                   </span>
                 </button>
               </li>
+
             </ul>
           </div>
 
@@ -62,7 +69,7 @@ function App() {
 
       {/* Contingut de les pàgines */}
       <main className="container-fluid mt-4">
-        <Outlet />
+        <Outlet context={{ cartOpen }} />
       </main>
 
       {/* Peu de pàgina */}
