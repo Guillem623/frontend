@@ -61,7 +61,7 @@ function App() {
       </nav>
 
       {/* Contingut de les pàgines */}
-      <main className="flex-grow-1 container py-4">
+      <main className="container-fluid mt-4">
         <Outlet />
       </main>
 
