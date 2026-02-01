@@ -1,7 +1,18 @@
 import { useOutletContext } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function Home() {
   const { cartOpen } = useOutletContext();
+  const [cart, setCart] = useState(null);
+
+  useEffect(() => {
+    if (cartOpen) {
+      fetch("http://localhost:3000/api/cart")
+        .then(res => res.json())
+        .then(data => setCart(data))
+        .catch(err => console.error(err));
+    }
+  }, [cartOpen]);
 
   return (
     <div className="py-5 px-5 position-relative">
@@ -13,9 +24,17 @@ function Home() {
           style={{ width: "300px", zIndex: 1000 }}
         >
           <h5>Cistella</h5>
-          <p className="text-muted mb-0">
-            La cistella està buida
-          </p>
+          {!cart ? (
+            <p className="text-muted mb-0">Carregant...</p>
+          ) : cart.items.length === 0 ? (
+            <p className="text-muted mb-0">La cistella està buida</p>
+          ) : (
+            <ul>
+              {cart.items.map((item, index) => (
+                <li key={index}>{item.name}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
