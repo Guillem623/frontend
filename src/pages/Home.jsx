@@ -2,9 +2,13 @@ import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 function Home() {
-  const { cartOpen } = useOutletContext();
-  const [cart, setCart] = useState(null);
 
+  const { cartOpen } = useOutletContext();
+
+  const [cart, setCart] = useState(null);
+  const [aliments, setAliments] = useState([]);
+
+  // 🔹 Fetch de la cistella
   useEffect(() => {
     if (cartOpen) {
       fetch("http://localhost:3000/api/cart")
@@ -14,20 +18,100 @@ function Home() {
     }
   }, [cartOpen]);
 
+  // 🔹 Fetch dels aliments (catàleg)
+  useEffect(() => {
+    fetch("http://localhost:3000/api/aliment")
+      .then(res => res.json())
+      .then(data => setAliments(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const getCategoryStyle = (categoria) => {
+
+    switch (categoria) {
+
+      case "formatge":
+        return {
+          backgroundColor: "#fff9db",
+          border: "2px solid #f1c40f"
+        };
+
+      case "vi":
+        return {
+          backgroundColor: "#f8d7da",
+          border: "2px solid #800020"
+        };
+
+      case "oli":
+        return {
+          backgroundColor: "#e8f5e9",
+          border: "2px solid #2e7d32"
+        };
+
+      case "xocolata":
+        return {
+          backgroundColor: "#f5e6dc",
+          border: "2px solid #6d4c41"
+        };
+
+      case "embotit":
+        return {
+          backgroundColor: "#ffe5e0",
+          border: "2px solid #e64a19"
+        };
+
+      default:
+        return {
+          backgroundColor: "#f3e5f5",
+          border: "2px solid #8e44ad"
+        };
+    }
+
+  };
+
+  // 🔹 Color del badge segons categoria
+  const getCategoryBadge = (categoria) => {
+
+    switch (categoria) {
+
+      case "formatge":
+        return "bg-warning text-dark";
+
+      case "vi":
+        return "bg-danger";
+
+      case "oli":
+        return "bg-success";
+
+      case "xocolata":
+        return "bg-dark";
+
+      case "embotit":
+        return "bg-danger";
+
+      default:
+        return "bg-secondary";
+    }
+
+  };
+
   return (
     <div className="py-5 px-5 position-relative">
 
-      {/* 🛒 CISTELLA DESPLEGADA (AFEGIT) */}
+      {/* 🛒 CISTELLA */}
       {cartOpen && (
         <div
           className="position-fixed top-0 end-0 mt-5 me-3 p-3 bg-light border rounded shadow"
           style={{ width: "300px", zIndex: 1000 }}
         >
           <h5>Cistella</h5>
+
           {!cart ? (
             <p className="text-muted mb-0">Carregant...</p>
+
           ) : cart.items.length === 0 ? (
             <p className="text-muted mb-0">La cistella està buida</p>
+
           ) : (
             <ul>
               {cart.items.map((item, index) => (
@@ -35,6 +119,7 @@ function Home() {
               ))}
             </ul>
           )}
+
         </div>
       )}
 
@@ -45,6 +130,59 @@ function Home() {
           Descobreix la millor selecció de productes gastronòmics exclusius.
         </p>
       </div>
+
+      {/* 🧀 CATÀLEG DE PRODUCTES */}
+      <section className="mb-5">
+
+        <h2 className="fw-semibold mb-4 text-center">
+          Catàleg de Productes
+        </h2>
+
+        <div className="row">
+
+          {aliments.map(aliment => (
+
+            <div className="col-md-4 mb-4" key={aliment._id}>
+
+              <div
+                className="card h-100 shadow-sm"
+                style={getCategoryStyle(aliment.categoria)}
+              >
+
+                <div className="card-body">
+
+                  {/* 🔹 BADGE CATEGORIA */}
+                  <span className={`badge mb-2 ${getCategoryBadge(aliment.categoria)}`}>
+                    {aliment.categoria}
+                  </span>
+
+                  <h5 className="card-title">
+                    {aliment.nom}
+                  </h5>
+
+                  <p className="card-text">
+                    {aliment.descripcio}
+                  </p>
+
+                  <p className="text-muted mb-1">
+                    Origen: {aliment.origen}
+                  </p>
+
+                  <p className="fw-bold">
+                    {aliment.preu} €
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </section>
 
       {/* Secció destacats */}
       <section className="mb-5">
