@@ -7,6 +7,22 @@ function Home() {
 
   const [cart, setCart] = useState(null);
   const [aliments, setAliments] = useState([]);
+  const [usuari, setUsuari] = useState(null);
+
+  useEffect(() => {
+
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("usuari");
+
+    if (!token) {
+      window.location.href = "/login";
+    }
+
+    if (user) {
+      setUsuari(JSON.parse(user));
+    }
+
+  }, []);
 
   // 🔹 Fetch de la cistella
   useEffect(() => {
@@ -25,6 +41,73 @@ function Home() {
       .then(data => setAliments(data))
       .catch(err => console.error(err));
   }, []);
+
+  // 🔹 Afegir producte a la cistella
+  const afegirACistella = (aliment) => {
+    fetch("http://localhost:3000/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        nom: aliment.nom,
+        preu: aliment.preu
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Producte afegit:", data);
+
+        // Si la cistella està oberta, actualitzem el contingut
+        if (cartOpen) {
+          setCart(data);
+        }
+      })
+      .catch(err => console.error(err));
+  };
+
+  const eliminarDeCistella = (index) => {
+
+    fetch(`http://localhost:3000/api/cart/remove/${index}`, {
+      method: "DELETE"
+    })
+      .then(res => res.json())
+      .then(data => {
+        setCart(data);
+      })
+      .catch(err => console.error(err));
+
+  };
+
+  const realitzarCompra = () => {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Has d'iniciar sessió abans de fer una compra");
+      return;
+    }
+
+    fetch("http://localhost:3000/api/cart/checkout", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+
+        alert(`${data.missatge}\nTotal pagat: ${data.total} €`);
+
+        setCart({
+          items: [],
+          total: 0
+        });
+
+      })
+      .catch(err => console.error(err));
+
+  };
 
   const getCategoryStyle = (categoria) => {
 
@@ -75,22 +158,23 @@ function Home() {
     switch (categoria) {
 
       case "formatge":
-        return "bg-warning text-dark";
+        return { backgroundColor: "#f1c40f", color: "black" };
 
       case "vi":
-        return "bg-danger";
+        return { backgroundColor: "#800020", color: "white" };
 
       case "oli":
-        return "bg-success";
+        return { backgroundColor: "#2e7d32", color: "white" };
 
       case "xocolata":
-        return "bg-dark";
+        return { backgroundColor: "#6d4c41", color: "white" };
 
       case "embotit":
-        return "bg-danger";
+        return { backgroundColor: "#e64a19", color: "white" };
 
-      default:
-        return "bg-secondary";
+      default: // altres
+        return { backgroundColor: "#8e44ad", color: "white" };
+
     }
 
   };
@@ -104,7 +188,7 @@ function Home() {
           className="position-fixed top-0 end-0 mt-5 me-3 p-3 bg-light border rounded shadow"
           style={{ width: "300px", zIndex: 1000 }}
         >
-          <h5>Cistella</h5>
+          <h5>Cistella ({cart ? cart.items.length : 0})</h5>
 
           {!cart ? (
             <p className="text-muted mb-0">Carregant...</p>
@@ -113,11 +197,35 @@ function Home() {
             <p className="text-muted mb-0">La cistella està buida</p>
 
           ) : (
-            <ul>
-              {cart.items.map((item, index) => (
-                <li key={index}>{item.name}</li>
-              ))}
-            </ul>
+            <>
+              <ul className="list-group mb-3">
+                {cart.items.map((item, index) => (
+                  <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+
+                    <span>{item.nom} - {item.preu} €</span>
+
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => eliminarDeCistella(index)}
+                    >
+                      🗑
+                    </button>
+
+                  </li>
+                ))}
+              </ul>
+
+              <p className="fw-bold text-end">
+                Total: {cart.total} €
+              </p>
+
+                  <button
+                    className="btn btn-success w-100 mt-2"
+                    onClick={realitzarCompra}
+                  >
+                    Realitzar compra
+                  </button>
+            </>
           )}
 
         </div>
@@ -126,6 +234,13 @@ function Home() {
       {/* Títol principal */}
       <div className="text-center mb-5">
         <h1 className="display-4 fw-bold">Benvingut a Delícies Gourmet</h1>
+
+        {usuari && (
+          <p className="text-muted">
+            Sessió iniciada com <strong>{usuari.nom}</strong>
+          </p>
+        )}
+        
         <p className="lead text-muted">
           Descobreix la millor selecció de productes gastronòmics exclusius.
         </p>
@@ -152,7 +267,10 @@ function Home() {
                 <div className="card-body">
 
                   {/* 🔹 BADGE CATEGORIA */}
-                  <span className={`badge mb-2 ${getCategoryBadge(aliment.categoria)}`}>
+                  <span
+                    className="badge mb-2"
+                    style={getCategoryBadge(aliment.categoria)}
+                  >
                     {aliment.categoria}
                   </span>
 
@@ -171,6 +289,14 @@ function Home() {
                   <p className="fw-bold">
                     {aliment.preu} €
                   </p>
+
+                  {/* 🔹 BOTÓ AFEGIR A CISTELLA */}
+                  <button
+                    className="btn btn-primary btn-sm mt-2"
+                    onClick={() => afegirACistella(aliment)}
+                  >
+                    Afegir a cistella
+                  </button>
 
                 </div>
 
