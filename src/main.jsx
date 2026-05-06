@@ -8,6 +8,11 @@ import App from './App.jsx'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Success from './pages/Success'
+import Cancel from './pages/Cancel'
+import DashboardUsuari from './pages/DashboardUsuari'
+import DashboardAdmin from './pages/DashboardAdmin'
+import ProtectedRoute from './components/ProtectedRoute'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -18,6 +23,24 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="success" element={<Success />} />
+          <Route path="cancel" element={<Cancel />} />
+          <Route 
+            path="dashboard/usuari" 
+            element={
+              <ProtectedRoute>
+                <DashboardUsuari />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="dashboard/admin" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <DashboardAdmin />
+              </ProtectedRoute>
+            } 
+          />
         </Route>
       </Routes>
     </BrowserRouter>

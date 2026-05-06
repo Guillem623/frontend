@@ -75,6 +75,21 @@ function App() {
                       👤 {usuari.nom}
                     </li>
 
+                    {/* 🔹 Link al dashboard según el rol */}
+                    {usuari.rol === "admin" ? (
+                      <li className="nav-item me-2">
+                        <Link to="/dashboard/admin" className="nav-link">
+                          📊 Dashboard Admin
+                        </Link>
+                      </li>
+                    ) : (
+                      <li className="nav-item me-2">
+                        <Link to="/dashboard/usuari" className="nav-link">
+                          👤 Dashboard
+                        </Link>
+                      </li>
+                    )}
+
                     <li className="nav-item me-3">
                       <button
                         className="btn btn-danger btn-sm"
@@ -93,11 +108,7 @@ function App() {
                   onClick={() => setCartOpen(!cartOpen)}
                 >
                   🛒
-                  <span
-                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  >
-                    0
-                  </span>
+    
                 </button>
               </li>
 

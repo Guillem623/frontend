@@ -79,8 +79,7 @@ function Home() {
 
   };
 
-  const realitzarCompra = () => {
-
+  const realitzarCompra = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -88,25 +87,54 @@ function Home() {
       return;
     }
 
-    fetch("http://localhost:3000/api/cart/checkout", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`
+    try {
+      // 🔹 Obtenir el carrito actualitzat
+      const cartRes = await fetch("http://localhost:3000/api/cart", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const currentCart = await cartRes.json();
+
+      // 🔹 Calcular el total del carrito en centavos
+      const total = currentCart?.items?.reduce((sum, item) => sum + (item.preu * 100), 0) || 0;
+
+      if (total === 0) {
+        alert("La cistella està buida");
+        return;
       }
-    })
-      .then(res => res.json())
-      .then(data => {
 
-        alert(`${data.missatge}\nTotal pagat: ${data.total} €`);
+      const res = await fetch("http://localhost:3000/api/checkout", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          amount: total
+        })
+      });
 
-        setCart({
-          items: [],
-          total: 0
-        });
+      const data = await res.json();
 
-      })
-      .catch(err => console.error(err));
+      if (!res.ok) {
+        console.error("Error del servidor:", data);
+        alert("Error al processar el pagament: " + (data.error || "Error desconegut"));
+        return;
+      }
 
+      if (!data.url) {
+        console.error("Resposta sense URL:", data);
+        alert("Error: no s'ha rebut la URL de pagament");
+        return;
+      }
+
+      window.location.href = data.url;
+
+    } catch (err) {
+      console.error("Error de connexió:", err);
+      alert("Error de connexió amb el servidor");
+    }
   };
 
   const getCategoryStyle = (categoria) => {
@@ -219,12 +247,12 @@ function Home() {
                 Total: {cart.total} €
               </p>
 
-                  <button
-                    className="btn btn-success w-100 mt-2"
-                    onClick={realitzarCompra}
-                  >
-                    Realitzar compra
-                  </button>
+              <button
+                className="btn btn-success w-100 mt-2"
+                onClick={realitzarCompra}
+              >
+                Realitzar compra
+              </button>
             </>
           )}
 
@@ -240,7 +268,7 @@ function Home() {
             Sessió iniciada com <strong>{usuari.nom}</strong>
           </p>
         )}
-        
+
         <p className="lead text-muted">
           Descobreix la millor selecció de productes gastronòmics exclusius.
         </p>

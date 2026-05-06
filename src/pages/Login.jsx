@@ -33,7 +33,7 @@ function Login() {
           alert(data.error);
         } else {
 
-          localStorage.setItem("token", data.token);
+          localStorage.setItem("token", data.accessToken);
           localStorage.setItem("usuari", JSON.stringify(data.usuari));
 
           alert("Sessió iniciada correctament");
